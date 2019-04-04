@@ -93,6 +93,8 @@ static void* (*_android_dladdr)(void *addr, Dl_info *info) = NULL;
 static int (*_android_dlclose)(void *handle) = NULL;
 static const char* (*_android_dlerror)(void) = NULL;
 
+static int use_vsnprintf_blacklist = 0;
+
 /* TODO:
 *  - Check if the int arguments at attr_set/get match the ones at Android
 *  - Check how to deal with memory leaks (specially with static initializers)
@@ -1390,6 +1392,25 @@ static FILE *_get_actual_fp(FILE *fp)
     return fp;
 }
 
+/*
+ * "Blacklist" certain vsnprintf calls the PowerVR driver uses to
+ * print information to logcat, crashing in the process of doing so.
+ */
+static int _hybris_hook_vsnprintf(char *s, size_t n,
+                                  const char *format, va_list ap)
+{
+    TRACE_HOOK("str %s size %d format '%s'", s, n, format);
+
+    if (use_vsnprintf_blacklist) {
+        if (strncmp("[%s] xdpi        : %f", format, 21) == 0 ||
+            strncmp("[%s] ydpi        : %f", format, 21) == 0) {
+            return 0;
+        }
+    }
+
+    return vsnprintf(s, n, format, ap);
+}
+
 static void _hybris_hook_clearerr(FILE *fp)
 {
     TRACE_HOOK("fp %p", fp);
@@ -2599,7 +2620,7 @@ static struct _hook hooks_common[] = {
     HOOK_DIRECT_NO_DEBUG(vasprintf),
     HOOK_DIRECT_NO_DEBUG(snprintf),
     HOOK_DIRECT_NO_DEBUG(vsprintf),
-    HOOK_DIRECT_NO_DEBUG(vsnprintf),
+    HOOK_INDIRECT(vsnprintf),
     HOOK_INDIRECT(clearerr),
     HOOK_INDIRECT(fclose),
     HOOK_INDIRECT(feof),
@@ -2857,6 +2878,9 @@ static int get_android_sdk_version()
             strcmp(device_name, "cooler") == 0 ||
             strcmp(device_name, "turbo") == 0)
             sdk_version = 19;
+        /* vsnprintf blacklist to work around crashes in the PowerVR blob */
+        if (strcmp(device_name, "arale") == 0)
+            use_vsnprintf_blacklist = 1;
     }
 #endif
 
