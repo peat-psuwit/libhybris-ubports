@@ -168,14 +168,6 @@ EGL_FUNCTIONS = (
     # EGL_KHR_wait_sync
     _eglFunc("eglWaitSyncKHR",                       "display"),
 
-    # EGL_MESA_drm_image
-    _eglFunc("eglCreateDRMImageMESA",                "display"),
-    _eglFunc("eglExportDRMImageMESA",                "display"),
-
-    # EGL_MESA_image_dma_buf_export
-    _eglFunc("eglExportDMABUFImageQueryMESA",        "display"),
-    _eglFunc("eglExportDMABUFImageMESA",             "display"),
-
     # EGL_NOK_swap_region
     _eglFunc("eglSwapBuffersRegionNOK",              "display"),
 
@@ -207,12 +199,43 @@ EGL_FUNCTIONS = (
     _eglFunc("eglQueryDevicesEXT",                   "none"),
     _eglFunc("eglQueryDisplayAttribEXT",             "display"),
 
-    # EGL_MESA_query_driver
-    _eglFunc("eglGetDisplayDriverName",              "display"),
-    _eglFunc("eglGetDisplayDriverConfig",            "display"),
-
     # EGL_KHR_partial_update
     _eglFunc("eglSetDamageRegionKHR",                "display"),
 
+    # EGL_ANDROID_presentation_time
+    _eglFunc("eglPresentationTimeANDROID",           "display"),
+
+    # EGL_ANDROID_create_native_client_buffer
+    _eglFunc("eglCreateNativeClientBufferANDROID",   "current"),
+
+    # EGL_ANDROID_get_native_client_buffer
+    _eglFunc("eglGetNativeClientBufferANDROID",      "current"),
+
+    # EGL_KHR_lock_surface
+    _eglFunc("eglLockSurfaceKHR",                    "display"),
+    _eglFunc("eglUnlockSurfaceKHR",                  "display"),
+
+    # EGL_ANDROID_get_frame_timestamps
+    _eglFunc("eglGetCompositorTimingSupportedANDROID", "display"),
+    _eglFunc("eglGetCompositorTimingANDROID",        "display"),
+    _eglFunc("eglGetNextFrameIdANDROID",             "display"),
+    _eglFunc("eglGetFrameTimestampSupportedANDROID", "display"),
+    _eglFunc("eglGetFrameTimestampsANDROID",         "display"),
+    
+    # EGL_HYBRIS_native_buffer2
+    _eglFunc("eglHybrisNativeBufferHandle",          "display"),
+    _eglFunc("eglHybrisGetNativeBufferInfo",         "current"),
+    _eglFunc("eglHybrisSerializeNativeBuffer",       "current"),
+    _eglFunc("eglHybrisCreateRemoteBuffer",          "current"),
+    _eglFunc("eglHybrisCreateNativeBuffer",          "current"),
+    _eglFunc("eglHybrisLockNativeBuffer",            "current"),
+    _eglFunc("eglHybrisUnlockNativeBuffer",          "current"),
+    _eglFunc("eglHybrisReleaseNativeBuffer",         "current"),
+
+    # EGL_HYBRIS_WL_acquire_native_buffer
+    _eglFunc("eglHybrisAcquireNativeBufferWL",       "display"),
+
+    # ??? No associated extension ??? (see comment in egl_hybris.xml)
+    _eglFunc("eglHybrisWaylandPostBuffer",           "current"),
 )
 
