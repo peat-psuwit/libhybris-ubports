@@ -31,8 +31,6 @@ import sys
 import xml.etree.ElementTree as etree
 
 import os
-GLAPI = os.path.join(os.path.dirname(__file__), "..", "glapi", "gen")
-sys.path.insert(0, GLAPI)
 import static_data
 
 MAPI_TABLE_NUM_DYNAMIC = 4096
