@@ -333,7 +333,7 @@ extern "C" __eglMustCastToProperFunctionPointerType eglplatformcommon_eglGetProc
 extern "C" const char *eglplatformcommon_eglQueryString(EGLDisplay dpy, EGLint name, const char *(*real_eglQueryString)(EGLDisplay dpy, EGLint name))
 {
 #ifdef WANT_WAYLAND
-	if (name == EGL_EXTENSIONS)
+	if (dpy != EGL_NO_DISPLAY && name == EGL_EXTENSIONS)
 	{
 		const char *ret = (*real_eglQueryString)(dpy, name);
 		static char eglextensionsbuf[2048];

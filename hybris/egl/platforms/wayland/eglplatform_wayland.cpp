@@ -283,7 +283,7 @@ extern "C" void waylandws_passthroughImageKHR(EGLContext *ctx, EGLenum *target, 
 extern "C" const char *waylandws_eglQueryString(EGLDisplay dpy, EGLint name, const char *(*real_eglQueryString)(EGLDisplay dpy, EGLint name))
 {
 	const char *ret = eglplatformcommon_eglQueryString(dpy, name, real_eglQueryString);
-	if (ret && name == EGL_EXTENSIONS)
+	if (ret && dpy != EGL_NO_DISPLAY && name == EGL_EXTENSIONS)
 	{
 		static char eglextensionsbuf[2048];
 		snprintf(eglextensionsbuf, 2046, "%s %s", ret,
