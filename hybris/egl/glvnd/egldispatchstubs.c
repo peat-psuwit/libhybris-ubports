@@ -4,6 +4,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "eglglvnd.h"
+
 static const __EGLapiExports *exports;
 
 const int __EGL_DISPATCH_FUNC_COUNT = __EGL_DISPATCH_COUNT;
@@ -57,9 +59,12 @@ static __eglMustCastToProperFunctionPointerType FetchVendorFunc(__EGLvendorInfo 
     }
     if (func == NULL) {
         if (errorCode != EGL_SUCCESS) {
-            // Libhybris doesn't have its own EGL error system. Set the error
-            // to GLVND instead.
-            exports->setEGLError(errorCode);
+            // Since we have no vendor, the follow-up eglGetError() call will
+            // end up using the GLVND error code. Set it here.
+            if (vendor == NULL) {
+                exports->setEGLError(errorCode);
+            }
+            __eglGLVNDSetError(errorCode);
         }
         return NULL;
     }
@@ -67,6 +72,7 @@ static __eglMustCastToProperFunctionPointerType FetchVendorFunc(__EGLvendorInfo 
     if (!exports->setLastVendor(vendor)) {
         // Don't bother trying to set an error code in libglvnd. If
         // setLastVendor failed, then setEGLError would also fail.
+        __eglGLVNDSetError(errorCode);
         return NULL;
     }
 
