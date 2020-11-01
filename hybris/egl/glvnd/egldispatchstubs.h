@@ -3,6 +3,10 @@
 
 #include "glvnd/libeglabi.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 // These variables are all generated along with the dispatch stubs.
 extern const int __EGL_DISPATCH_FUNC_COUNT;
 extern const char * const __EGL_DISPATCH_FUNC_NAMES[];
@@ -22,5 +26,9 @@ void *__eglDispatchFindDispatchFunction(const char *name);
 __eglMustCastToProperFunctionPointerType __eglDispatchFetchByDisplay(EGLDisplay dpy, int index);
 __eglMustCastToProperFunctionPointerType __eglDispatchFetchByDevice(EGLDeviceEXT dpy, int index);
 __eglMustCastToProperFunctionPointerType __eglDispatchFetchByCurrent(int index);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif // EGLDISPATCHSTUBS_H
