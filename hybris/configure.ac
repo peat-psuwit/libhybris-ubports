@@ -103,6 +103,7 @@ AS_IF( [test "$enable_glvnd" = "yes"], [
   AM_PATH_PYTHON([3.0])
   PKG_CHECK_MODULES(GLVND, libglvnd)
   PKG_CHECK_MODULES(EGL, egl)
+  PKG_CHECK_MODULES(GLESV2, glesv2)
 
   AC_DEFINE([WANT_GLVND], [], [Enable GLVND support])
 
