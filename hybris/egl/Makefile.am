@@ -68,7 +68,7 @@ if WANT_DEBUG
 libEGL__GL_LIB_SUFFIX__la_CFLAGS += -ggdb -O0
 endif
 if WANT_GLVND
-libEGL__GL_LIB_SUFFIX__la_CFLAGS += -I$(builddir)/glvnd -fvisibility=hidden
+libEGL__GL_LIB_SUFFIX__la_CFLAGS += $(GLVND_CFLAGS) -I$(srcdir)/glvnd -I$(builddir)/glvnd -fvisibility=hidden
 endif
 
 libEGL__GL_LIB_SUFFIX__la_CXXFLAGS = -I$(top_srcdir)/include $(ANDROID_HEADERS_CFLAGS) -I$(top_srcdir)/common -DPKGLIBDIR="\"$(pkglibdir)/\""
@@ -82,7 +82,7 @@ if WANT_DEBUG
 libEGL__GL_LIB_SUFFIX__la_CXXFLAGS += -ggdb -O0
 endif
 if WANT_GLVND
-libEGL__GL_LIB_SUFFIX__la_CXXFLAGS += $(GLVND_CFLAGS) -fvisibility=hidden
+libEGL__GL_LIB_SUFFIX__la_CXXFLAGS += $(GLVND_CFLAGS) -I$(srcdir)/glvnd -I$(builddir)/glvnd -fvisibility=hidden
 endif
 
 libEGL__GL_LIB_SUFFIX__la_LDFLAGS = \
