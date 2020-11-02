@@ -111,6 +111,7 @@ AS_IF( [test "$enable_glvnd" = "yes"], [
   AC_DEFINE([GL_LIB_SUFFIX], ["_libhybris"], [Suffix for GL-related libraries])
 ], [
   AC_SUBST([GL_LIB_SUFFIX], [""])
+  AC_DEFINE([GL_LIB_SUFFIX], [""], [Suffix for GL-related libraries])
 ])
 
 AC_ARG_ENABLE(wayland_serverside_buffers,
