@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "eglhybris.h"
 #include "eglglvnd.h"
 
 static const __EGLapiExports *exports;
@@ -64,7 +65,7 @@ static __eglMustCastToProperFunctionPointerType FetchVendorFunc(__EGLvendorInfo 
             if (vendor == NULL) {
                 exports->setEGLError(errorCode);
             }
-            __eglGLVNDSetError(errorCode);
+            __eglHybrisSetError(errorCode);
         }
         return NULL;
     }
@@ -72,7 +73,7 @@ static __eglMustCastToProperFunctionPointerType FetchVendorFunc(__EGLvendorInfo 
     if (!exports->setLastVendor(vendor)) {
         // Don't bother trying to set an error code in libglvnd. If
         // setLastVendor failed, then setEGLError would also fail.
-        __eglGLVNDSetError(errorCode);
+        __eglHybrisSetError(errorCode);
         return NULL;
     }
 

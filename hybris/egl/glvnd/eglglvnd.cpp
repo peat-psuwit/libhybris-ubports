@@ -4,29 +4,11 @@
 #include <EGL/egl.h>
 #include <glvnd/libeglabi.h>
 
+#include "eglhybris.h"
 #include "eglglvnd.h"
 #include "egldispatchstubs.h"
 
 static const __EGLapiExports *__eglGLVNDApiExports = NULL;
-
-// Used to report the error of glvnd's error.
-static thread_local EGLint __eglGLVNDError = EGL_SUCCESS;
-
-void __eglGLVNDSetError(EGLint error)
-{
-    __eglGLVNDError = error;
-}
-
-EGLint EGLAPIENTRY __eglGLVNDGetError(void)
-{
-    if (__eglGLVNDError != EGL_SUCCESS) {
-        auto ret = __eglGLVNDError;
-        __eglGLVNDError = EGL_SUCCESS;
-        return ret;
-    }
-
-    return eglGetError();
-}
 
 /* Libhybris doesn't support EGL 1.5 and eglGetPlatformDisplay() variant. Doing
  * so would require some undertaking changes in libhybris EGL's ws system. So,
@@ -101,7 +83,7 @@ __eglGLVNDGetPlatformDisplay(EGLenum platform, void *native_display,
         const EGLAttrib * /* attrib_list */)
 {
     if (platform != EGL_NONE) {
-        __eglGLVNDSetError(EGL_BAD_PARAMETER);
+        __eglHybrisSetError(EGL_BAD_PARAMETER);
         return EGL_NO_DISPLAY;
     }
 
@@ -118,8 +100,6 @@ __eglGLVNDGetProcAddress(const char *procName)
 {
     if (strcmp(procName ,"eglQueryString") == 0)
         return (void *) __eglGLVNDQueryString;
-    else if (strcmp(procName, "eglGetError") == 0)
-        return (void *) __eglGLVNDGetError;
     else
         return (void *) eglGetProcAddress(procName);
 }
