@@ -106,6 +106,7 @@ AS_IF( [test "$enable_glvnd" = "yes"], [
   AC_DEFINE([WANT_GLVND], [], [Enable GLVND support])
 
   AC_SUBST([GL_LIB_SUFFIX], ["_libhybris"])
+  AC_DEFINE([GL_LIB_SUFFIX], ["_libhybris"], [Suffix for GL-related libraries])
 ], [
   AC_SUBST([GL_LIB_SUFFIX], [""])
 ])
