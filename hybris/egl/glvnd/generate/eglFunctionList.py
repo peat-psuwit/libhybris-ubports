@@ -180,9 +180,6 @@ EGL_FUNCTIONS = (
     _eglFunc("eglQueryWaylandBufferWL",              "display"),
     _eglFunc("eglBindWaylandDisplayWL",              "display"),
 
-    # EGL_CHROMIUM_get_sync_values
-    _eglFunc("eglGetSyncValuesCHROMIUM",             "display"),
-
     # EGL_ANDROID_native_fence_sync
     _eglFunc("eglDupNativeFenceFDANDROID",           "display"),
 
