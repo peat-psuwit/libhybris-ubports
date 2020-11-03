@@ -4,8 +4,10 @@ Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Build-Depends: debhelper-compat (= 12),
                autotools-dev,
                android-headers-28,
+               dh-exec,
                pkg-config,
-               libgles2-mesa-dev,
+               python3:any,
+               libglvnd-dev,
                libwayland-dev,
                ocl-icd-opencl-dev
 Standards-Version: 3.9.7
