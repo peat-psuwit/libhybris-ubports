@@ -65,7 +65,7 @@ override_dh_auto_configure:
 		$(ARCH_CONFIGURATION)
 
 override_dh_autoreconf:
-	NOCONFIGURE=1 dh_autoreconf ./hybris/autogen.sh
+	NOCONFIGURE=1 dh_autoreconf ./autogen.sh
 
 %:
 	dh $@ --sourcedirectory=hybris
