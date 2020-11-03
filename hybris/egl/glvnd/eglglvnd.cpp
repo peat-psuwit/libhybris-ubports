@@ -22,10 +22,12 @@ static const __EGLapiExports *__eglGLVNDApiExports = NULL;
 static std::string clientExtensionNoPlatform()
 {
     std::string clientExts;
-    const std::string clientExtsOrig = std::string(eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS));
+    const char * clientExtsOrigCStr = eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
 
-    if (clientExtsOrig.empty())
+    if (!clientExtsOrigCStr || clientExtsOrigCStr[0] == '\0')
         return clientExts;
+
+    const std::string clientExtsOrig(clientExtsOrigCStr);
 
     std::size_t start = 0, end;
     do {
