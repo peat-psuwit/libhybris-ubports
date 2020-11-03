@@ -122,4 +122,4 @@ override_dh_autoreconf:
 	NOCONFIGURE=1 dh_autoreconf ./hybris/autogen.sh
 
 %:
-	dh $@ --with autoreconf --sourcedirectory=hybris
+	dh $@ --sourcedirectory=hybris
