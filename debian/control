@@ -1,11 +1,9 @@
 Source: libhybris
 Priority: extra
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-Build-Depends: debhelper (>= 9.0.0),
+Build-Depends: debhelper-compat (= 12),
                autotools-dev,
-               dh-autoreconf,
                android-headers-28,
-               quilt,
                pkg-config,
                libgles2-mesa-dev,
                libwayland-dev,
