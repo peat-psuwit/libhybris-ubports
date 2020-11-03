@@ -1,38 +1,17 @@
 #!/usr/bin/make -f
 
+include /usr/share/dpkg/pkg-info.mk
+include /usr/share/dpkg/architecture.mk
+
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-# Package names
 PKG_driver      := libhybris
-PKG_driver_dev  := libhybris-dev
-PKG_driver_dbg  := libhybris-dbg
-PKG_version     := $(shell dpkg-parsechangelog | sed -n 's/^Version: //p')
-PKG_source      := $(shell dpkg-parsechangelog | sed -n 's/^Source: //p')
-PKG_distro      := $(shell dpkg-parsechangelog | sed -n 's/^Distribution: //p')
-UPS_version     := $(shell echo '$(PKG_version)' | sed 's/.*://; s/-[^-]*$$//')
-GIT_rev         := $(shell echo '$(UPS_version)' | sed 's/.*+//')
-
-DEB_HOST_ARCH      ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
-DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
-DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
-
-ifeq ($(PKG_distro),vivid)
-# For vivid we still depend on GCC 4.7 as this seems to be still
-# required to workaround ABI issues.
-export CC=gcc-4.7
-export CXX=g++-4.7
-EXTRA_BUILD_DEPENDS = gcc-4.7, g++-4.7,
-endif
+# This requires that the version be in a specific format.
+GIT_rev          = $(shell echo '$(DEB_VERSION_UPSTREAM)' | sed 's/.*+//')
 
 # Strong needs at least gcc 4.9
 export DEB_BUILD_MAINT_OPTIONS=hardening=-stackprotectorstrong
-
-ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
-	CC :=$(DEB_HOST_GNU_TYPE)-$(CC)
-	CXX :=$(DEB_HOST_GNU_TYPE)-$(CXX)
-endif
 
 # Priority of the alternatives
 alt_priority    := 400
@@ -57,15 +36,15 @@ override_dh_auto_clean: debian/control
 
 # --remote doesn't work with github so this needs to be run from a local checkout
 get-packaged-orig-source:
-	rm -rf $(PKG_source)-$(UPS_version)
-	rm -f $(PKG_source)-$(UPS_version).orig.tar.gz
-	git clone https://github.com/libhybris/libhybris.git $(PKG_source)-$(UPS_version)
-	cd $(PKG_source)-$(UPS_version) && git archive \
+	rm -rf $(DEB_SOURCE)-$(DEB_VERSION_UPSTREAM)
+	rm -f $(DEB_SOURCE)-$(DEB_VERSION_UPSTREAM).orig.tar.gz
+	git clone https://github.com/libhybris/libhybris.git $(DEB_SOURCE)-$(DEB_VERSION_UPSTREAM)
+	cd $(DEB_SOURCE)-$(DEB_VERSION_UPSTREAM) && git archive \
 		--format tar \
-		--prefix $(PKG_source)-$(UPS_version)/ \
+		--prefix $(DEB_SOURCE)-$(DEB_VERSION_UPSTREAM)/ \
 		$(GIT_rev) \
-		| gzip >../$(PKG_source)_$(UPS_version).orig.tar.gz
-	rm -rf $(PKG_source)-$(UPS_version)
+		| gzip >../$(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.gz
+	rm -rf $(DEB_SOURCE)-$(DEB_VERSION_UPSTREAM)
 
 ANDROID_HEADERS_PATH = /usr/include/android-28
 DEFAULT_CONFIGURATION = \
@@ -124,8 +103,8 @@ override_dh_install:
 			-e "s|#PKGCONFIGDIR#|$(PKG_configdir)|g" \
 			-e "s|#PKGLIBDIR#|$(PKG_libdir)|g" \
 			-e "s|#DRIVERNAME#|$(PKG_driver)|g" \
-			-e "s|#DRIVERSRCNAME#|$(PKG_source)|g" \
-			-e "s|#VERSION#|$(PKG_version)|g" \
+			-e "s|#DRIVERSRCNAME#|$(DEB_SOURCE)|g" \
+			-e "s|#VERSION#|$(DEB_VERSION)|g" \
 			-e "s|#INCLUDEDIR#|$(includedir)|g" \
 			-e "s|#DEB_HOST_MULTIARCH#|$(DEB_HOST_MULTIARCH)|g" \
 			debian/$$i.in > debian/$$i; \
@@ -143,4 +122,4 @@ override_dh_autoreconf:
 	NOCONFIGURE=1 dh_autoreconf ./hybris/autogen.sh
 
 %:
-	dh $@ --with quilt,autoreconf --sourcedirectory=hybris
+	dh $@ --with autoreconf --sourcedirectory=hybris
