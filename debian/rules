@@ -12,9 +12,6 @@ GIT_rev          = $(shell echo '$(DEB_VERSION_UPSTREAM)' | sed 's/.*+//')
 # Strong needs at least gcc 4.9
 export DEB_BUILD_MAINT_OPTIONS=hardening=-stackprotectorstrong
 
-override_dh_auto_clean: debian/control
-	dh_auto_clean
-
 # --remote doesn't work with github so this needs to be run from a local checkout
 get-packaged-orig-source:
 	rm -rf $(DEB_SOURCE)-$(DEB_VERSION_UPSTREAM)
