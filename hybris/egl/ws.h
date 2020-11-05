@@ -3,6 +3,10 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 struct ws_egl_interface {
 	void * (*android_egl_dlsym)(const char *symbol);
 
@@ -51,5 +55,9 @@ void ws_finishSwap(EGLDisplay dpy, EGLNativeWindowType win);
 void ws_setSwapInterval(EGLDisplay dpy, EGLNativeWindowType win, EGLint interval);
 
 const char * ws_eglPlatform();
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

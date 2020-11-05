@@ -5,17 +5,22 @@
 #include <glvnd/libeglabi.h>
 
 #include "eglhybris.h"
+#include "ws.h"
 #include "egldispatchstubs.h"
 
 static const __EGLapiExports *__eglGLVNDApiExports = NULL;
 
-/* Libhybris doesn't support EGL 1.5 and eglGetPlatformDisplay() variant. Doing
- * so would require some undertaking changes in libhybris EGL's ws system. So,
- * we would advertise no platform support in client extensions.
+/* Libhybris doesn't support EGL 1.5 and eglGetPlatformDisplay() variant.
+ * However, due to the way glvnd works, we're forced to support a minimum
+ * amount of platform extension. Libhybris allows loading only 1 window system
+ * at a time, and it does so as early as eglQueryString(), so we cannot defer
+ * loading it until eglGet(Platform)Display() time.
  * 
  * According to Mesa, the normal eglQueryString shouldn't include platform
- * extensions, so we'll strip it. Platform extensions are queried via glvnd's
- * getVendorString(). We won't support any, so we'll return NULL.
+ * extensions, so we use this to our advantage. We'll strip any platform
+ * presents in normal string. Then, when we're queried supported platfrom
+ * in glvnd's GetVendorString(), we check what a window system is loaded and
+ * reply only the coresponding extensions.
  */
 
 static std::string clientExtensionNoPlatform()
@@ -72,18 +77,46 @@ __eglGLVNDQueryString(EGLDisplay dpy, EGLenum name)
 static const char *
 __eglGLVNDGetVendorString(int name)
 {
-    if (name == __EGL_VENDOR_STRING_PLATFORM_EXTENSIONS)
-        // TODO: do something if we eventually support eglGetPlatformDisplay().
-        return NULL;
+    if (name == __EGL_VENDOR_STRING_PLATFORM_EXTENSIONS) {
+        const char * wsPlatform = ws_eglPlatform();
+
+        if (strcmp(wsPlatform, "null") == 0)
+            return "EGL_KHR_platform_android";
+#ifdef WANT_WAYLAND
+        else if (strcmp(wsPlatform, "wayland") == 0)
+            return "EGL_EXT_platform_wayland EGL_KHR_platform_wayland";
+#endif
+        else
+            return "";
+    }
 
     return NULL;
+}
+
+static EGLBoolean IsPlatformUsable(EGLenum platform)
+{
+    switch (platform) {
+        case EGL_NONE:
+            return EGL_TRUE;
+
+        case EGL_PLATFORM_ANDROID_KHR:
+            return strcmp(ws_eglPlatform(), "null") == 0;
+
+#ifdef WANT_WAYLAND
+        case EGL_PLATFORM_WAYLAND_KHR:
+            return strcmp(ws_eglPlatform(), "wayland") == 0;
+#endif
+
+        default:
+            return EGL_FALSE;
+    }
 }
 
 static EGLDisplay
 __eglGLVNDGetPlatformDisplay(EGLenum platform, void *native_display,
         const EGLAttrib * /* attrib_list */)
 {
-    if (platform != EGL_NONE) {
+    if (!IsPlatformUsable(platform)) {
         __eglHybrisSetError(EGL_BAD_PARAMETER);
         return EGL_NO_DISPLAY;
     }
