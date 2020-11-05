@@ -10,7 +10,6 @@ libEGL__GL_LIB_SUFFIX__la_SOURCES = \
 
 if WANT_GLVND
 libEGL__GL_LIB_SUFFIX__la_SOURCES += \
-	glvnd/eglglvnd.h \
 	glvnd/eglglvnd.cpp \
 	glvnd/egldispatchstubs.h \
 	glvnd/egldispatchstubs.c

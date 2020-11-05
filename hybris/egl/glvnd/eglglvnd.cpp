@@ -5,7 +5,6 @@
 #include <glvnd/libeglabi.h>
 
 #include "eglhybris.h"
-#include "eglglvnd.h"
 #include "egldispatchstubs.h"
 
 static const __EGLapiExports *__eglGLVNDApiExports = NULL;

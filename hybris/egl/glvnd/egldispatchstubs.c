@@ -5,7 +5,6 @@
 #include <stdlib.h>
 
 #include "eglhybris.h"
-#include "eglglvnd.h"
 
 static const __EGLapiExports *exports;
 

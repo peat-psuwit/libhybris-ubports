@@ -147,10 +147,7 @@ void ws_setSwapInterval(EGLDisplay dpy, EGLNativeWindowType win, EGLint interval
 
 const char * ws_eglPlatform()
 {
-	if (_egl_platform[0] == '\0') {
-		return NULL;
-	}
-
+	_init_ws();
 	return _egl_platform;
 }
 
