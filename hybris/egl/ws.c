@@ -27,6 +27,7 @@
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static struct ws_module *ws = NULL;
+static char _egl_platform[32] = { 0 };
 
 static void _init_ws()
 {
@@ -73,6 +74,8 @@ static void _init_ws()
 		ws = dlsym(wsmod, "ws_module_info");
 		assert(ws != NULL);
 		ws->init_module(&hybris_egl_interface);
+
+		strncpy(_egl_platform, egl_platform, sizeof(_egl_platform));
 
 		pthread_mutex_unlock(&mutex);
 	}
@@ -140,6 +143,12 @@ void ws_setSwapInterval(EGLDisplay dpy, EGLNativeWindowType win, EGLint interval
 	_init_ws();
 	if (ws->setSwapInterval)
 		ws->setSwapInterval(dpy, win, interval);
+}
+
+const char * ws_eglPlatform()
+{
+	_init_ws();
+	return _egl_platform;
 }
 
 // vim:ts=4:sw=4:noexpandtab
