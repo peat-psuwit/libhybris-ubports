@@ -50,4 +50,6 @@ void ws_prepareSwap(EGLDisplay dpy, EGLNativeWindowType win, EGLint *damage_rect
 void ws_finishSwap(EGLDisplay dpy, EGLNativeWindowType win);
 void ws_setSwapInterval(EGLDisplay dpy, EGLNativeWindowType win, EGLint interval);
 
+const char * ws_eglPlatform();
+
 #endif
