@@ -2264,6 +2264,85 @@ static void *_hybris_hook___get_tls_hooks()
     return tls_hooks;
 }
 
+struct __cxa_atexit_list {
+    void * dso_handle;
+    struct cxa_atexit_list * next;
+};
+
+static struct __cxa_atexit_list * cxa_atexit_list = NULL;
+static pthread_mutex_t cxa_atexit_list_lock = PTHREAD_MUTEX_INITIALIZER;
+
+static int _hybris_hook___cxa_atexit(void (*func)(void*), void * arg, void * dso_handle)
+{
+    if (dso_handle == NULL)
+        // Shouldn't happen, but just in case.
+        return __cxa_atexit(func, arg, dso_handle);
+
+    pthread_mutex_lock(&cxa_atexit_list_lock);
+
+    struct __cxa_atexit_list ** prevNext = &cxa_atexit_list;
+    while (*prevNext != NULL) {
+        if ((*prevNext)->dso_handle == dso_handle)
+            goto out;
+
+        prevNext = &(*prevNext)->next;
+    }
+
+    // prevNext now points at last entry's next. However, a library is more
+    // likely to insert a number of atexit handlers together. Thus, it's better
+    // to insert the new entry at the front.
+    struct __cxa_atexit_list * entry = malloc(sizeof(struct __cxa_atexit_list));
+    entry->dso_handle = dso_handle;
+    entry->next = cxa_atexit_list;
+    cxa_atexit_list = entry;
+
+out:
+    pthread_mutex_unlock(&cxa_atexit_list_lock);
+    return __cxa_atexit(func, arg, dso_handle);
+}
+
+// We define this function first, so that __cxa_finilize can call us in d == NULL case.
+static void _hybris_atexit_remaining_cxa_atexit(void)
+{
+    // We're exiting/unloading, no more registration should be possible.
+    // Thus, we won't take the lock anymore.
+    while (cxa_atexit_list != NULL) {
+        struct __cxa_atexit_list * entry = cxa_atexit_list;
+        __cxa_finalize(entry->dso_handle);
+        cxa_atexit_list = entry->next;
+        free(entry);
+    }
+}
+
+static void _hybris_hook___cxa_finalize(void * d)
+{
+    if (d == NULL)
+        // Shouldn't happen, but just in case.
+        return _hybris_atexit_remaining_cxa_atexit();
+
+    int found = 0;
+
+    pthread_mutex_lock(&cxa_atexit_list_lock);
+
+    struct __cxa_atexit_list ** prevNext = &cxa_atexit_list;
+    while (*prevNext != NULL) {
+        if ((*prevNext)->dso_handle == d) {
+            (*prevNext) = (*prevNext)->next;
+            free(*prevNext);
+            found = 1;
+            break;
+        }
+
+        prevNext = &(*prevNext)->next;
+    }
+
+    pthread_mutex_unlock(&cxa_atexit_list_lock);
+
+    if (found)
+        __cxa_finalize(d);
+    // Otherwise, it's likely that another call has happened.
+}
+
 struct __wrapped_atexit {
     void (*dtor)(void *);
     void *obj;
@@ -3036,8 +3115,8 @@ static struct _hook hooks_common[] = {
     /* grp.h */
     HOOK_DIRECT_NO_DEBUG(getgrgid),
     /* C++ ABI */
-    HOOK_DIRECT_NO_DEBUG(__cxa_atexit),
-    HOOK_DIRECT_NO_DEBUG(__cxa_finalize),
+    HOOK_INDIRECT(__cxa_atexit),
+    HOOK_INDIRECT(__cxa_finalize),
     HOOK_INDIRECT(__cxa_thread_atexit),
     /* sys/prctl.h */
     HOOK_INDIRECT(prctl),
@@ -3421,6 +3500,8 @@ static void __hybris_linker_init()
     if (_android_set_application_target_sdk_version) {
         _android_set_application_target_sdk_version(sdk_version);
     }
+
+    atexit(_hybris_atexit_remaining_cxa_atexit);
 
     linker_initialized = 1;
 }
