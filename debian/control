@@ -155,6 +155,7 @@ Architecture: armhf arm64 i386 amd64
 Depends: libhybris (= ${binary:Version}),
          ${shlibs:Depends},
          ${misc:Depends}
+Recommends: binutils
 Description: Utilities to help working with the Android HW abstraction layer
  Contains utilities used to help working with Android HW abstraction layer.
  .
